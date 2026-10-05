@@ -332,7 +332,7 @@ export default function Portfolio() {
   };
 
   return (
-    <MotionConfig reducedMotion="user">
+    <MotionConfig reducedMotion="user" transition={{ type: "spring", bounce: 0.2 }}>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -397,7 +397,7 @@ export default function Portfolio() {
         target="_blank"
         rel="noopener noreferrer"
       >
-        RÉSUMÉ <FileText size={13} />
+        RESUME <FileText size={13} />
       </a>
       <nav className="section-rail" aria-label="On this page">
         {sections.map((s) => (
@@ -418,16 +418,32 @@ export default function Portfolio() {
       </a>
       <main id="main">
         <section className="hero" id="home" aria-label="Home">
-          <div className="hero-name">
+          <motion.div
+            className="hero-name"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+          >
             <p>Hello! I’m</p>
             <h1>
               Nishant
               <br />
               Suthar
             </h1>
-          </div>
-          <Character />
-          <div className="hero-build">
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <Character />
+          </motion.div>
+          <motion.div
+            className="hero-build"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
             <p>I build</p>
             <div className="phrase-wrap">
               <AnimatePresence mode="wait">
@@ -443,21 +459,41 @@ export default function Portfolio() {
                 </motion.span>
               </AnimatePresence>
             </div>
-          </div>
-          <a className="hero-scroll" href="#stack">
+          </motion.div>
+          <motion.a
+            className="hero-scroll"
+            href="#stack"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            whileHover={{ y: 4 }}
+          >
             scroll ↓<span />
-          </a>
+          </motion.a>
         </section>
         <section
           className="stack-section content-section"
           id="stack"
           aria-label="Tech stack"
         >
-          <h2 className="gradient-text">Tech Stack</h2>
-          <p className="section-kicker">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="gradient-text">Tech Stack</h2>
+          </motion.div>
+          <motion.p
+            className="section-kicker"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
             A LIVING NETWORK · DRAG TO ROTATE · SCROLL TO ZOOM · HOVER TO TRACE
             LINKS
-          </p>
+          </motion.p>
           <TechGraph selected={selectedTech} onSelect={setSelectedTech} />
         </section>
         <section
@@ -465,70 +501,128 @@ export default function Portfolio() {
           id="build"
           aria-label="What I build"
         >
-          <p className="section-kicker work-kicker">
+          <motion.p
+            className="section-kicker work-kicker"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+          >
             <span /> WHAT I BUILD · TAP A CARD TO FLIP · TAP A CHIP TO FIND IT
             IN THE STACK
-          </p>
+          </motion.p>
           <div className="work-layout">
-            <div className="work-column">
+            <motion.div
+              className="work-column"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, staggerChildren: 0.15 }}
+            >
               {projects.slice(0, 2).map((p) => (
-                <FlipCard
+                <motion.div
                   key={p.id}
-                  project={p}
-                  onOpen={() => setSelectedProject(p)}
-                  onTechnology={selectTechnology}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <FlipCard
+                    project={p}
+                    onOpen={() => setSelectedProject(p)}
+                    onTechnology={selectTechnology}
+                  />
+                </motion.div>
               ))}
-            </div>
-            <div className="workspace-scene">
+            </motion.div>
+            <motion.div
+              className="workspace-scene"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+            >
               <CharacterScene />
               <h2>Selected Projects</h2>
-            </div>
-            <div className="work-column">
+            </motion.div>
+            <motion.div
+              className="work-column"
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, staggerChildren: 0.15 }}
+            >
               {projects.slice(2, 4).map((p) => (
-                <FlipCard
+                <motion.div
                   key={p.id}
-                  project={p}
-                  onOpen={() => setSelectedProject(p)}
-                  onTechnology={selectTechnology}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <FlipCard
+                    project={p}
+                    onOpen={() => setSelectedProject(p)}
+                    onTechnology={selectTechnology}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
-          <a
+          <motion.a
             className="github-note"
             href={profile.github}
             target="_blank"
             rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            whileHover={{ x: 4 }}
           >
             <Github size={16} /> Explore the code and documentation{" "}
             <ArrowUpRight size={15} />
-          </a>
+          </motion.a>
         </section>
         <section
           className="numbers-section content-section"
           id="numbers"
           aria-label="By the numbers"
         >
-          <p className="section-kicker">BY THE NUMBERS</p>
-          <div className="numbers-grid">
-            <div>
-              <AnimatedValue value="4" />
-              <span>projects built & documented</span>
-            </div>
-            <div>
-              <AnimatedValue value="3.8" />
-              <span>GPA · College of DuPage</span>
-            </div>
-            <div>
-              <AnimatedValue value="2" />
-              <span>certificates · High Honors</span>
-            </div>
-            <div>
-              <AnimatedValue value="3" />
-              <span>tools in one password app</span>
-            </div>
-          </div>
+          <motion.p
+            className="section-kicker"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+          >
+            BY THE NUMBERS
+          </motion.p>
+          <motion.div
+            className="numbers-grid"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, staggerChildren: 0.1 }}
+          >
+            {[
+              { value: "4", label: "projects built & documented" },
+              { value: "3.8", label: "GPA · College of DuPage" },
+              { value: "2", label: "certificates · High Honors" },
+              { value: "3", label: "tools in one password app" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedValue value={item.value} />
+                <span>{item.label}</span>
+              </motion.div>
+            ))}
+          </motion.div>
         </section>
         <AskPortfolio onProject={openProject} />
         <section
@@ -536,9 +630,28 @@ export default function Portfolio() {
           id="about"
           aria-label="About me"
         >
-          <div className="about-layout">
-            <IdentityDemo />
-            <div className="about-copy">
+          <motion.div
+            className="about-layout"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <IdentityDemo />
+            </motion.div>
+            <motion.div
+              className="about-copy"
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
               <p className="section-kicker">ABOUT ME</p>
               <h2>
                 Cybersecurity student.
@@ -582,9 +695,15 @@ export default function Portfolio() {
               <p className="code-note">
                 // cloud · code · identity — all connected
               </p>
-            </div>
-          </div>
-          <div className="background-grid">
+            </motion.div>
+          </motion.div>
+          <motion.div
+            className="background-grid"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, staggerChildren: 0.1 }}
+          >
             <div className="education">
               <p className="section-kicker">
                 <GraduationCap size={17} /> EDUCATION
@@ -635,14 +754,43 @@ export default function Portfolio() {
                 <span>AWS Cloud Practitioner</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </section>
         <section className="experience-section content-section" id="experience">
-          <p className="section-kicker">WORK EXPERIENCE</p>
-          <h2 className="gradient-text">Beyond the projects.</h2>
-          <div className="experience-list">
+          <motion.p
+            className="section-kicker"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+          >
+            WORK EXPERIENCE
+          </motion.p>
+          <motion.h2
+            className="gradient-text"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Beyond the projects.
+          </motion.h2>
+          <motion.div
+            className="experience-list"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, staggerChildren: 0.08 }}
+          >
             {experience.map((e, i) => (
-              <details key={e.company} open={i === 0}>
+              <motion.details
+                key={e.company}
+                open={i === 0}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+              >
                 <summary>
                   <div>
                     <h3>{e.role}</h3>
@@ -659,74 +807,120 @@ export default function Portfolio() {
                     ))}
                   </ul>
                 </div>
-              </details>
+              </motion.details>
             ))}
-          </div>
-          <a
+          </motion.div>
+          <motion.a
             className="resume-download"
             href={profile.resume}
             download="Nishant-Suthar-Portfolio-Reference.pdf"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            whileHover={{ x: 4 }}
           >
             <FileText size={17} /> Download résumé reference{" "}
             <ArrowUpRight size={16} />
-          </a>
+          </motion.a>
         </section>
         <section
           className="contact-section content-section"
           id="contact"
           aria-label="Contact"
         >
-          <div className="contact-hero">
-            <div className="contact-copy">
+          <motion.div
+            className="contact-hero"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.div
+              className="contact-copy"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
               <p className="section-kicker">CONTACT</p>
               <h2>
                 Let’s build something
                 <br />
                 <span className="gradient-text">with security in mind.</span>
               </h2>
-              <a className="say-hello" href={`mailto:${profile.email}`}>
+              <motion.a
+                className="say-hello"
+                href={`mailto:${profile.email}`}
+                whileHover={{ x: 4 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
                 Say hello <ArrowUpRight size={19} />
-              </a>
-            </div>
-            <div className="contact-character">
+              </motion.a>
+            </motion.div>
+            <motion.div
+              className="contact-character"
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               <CharacterScene variant="security" />
-            </div>
-          </div>
-          <div className="contact-cards">
-            <button
+            </motion.div>
+          </motion.div>
+          <motion.div
+            className="contact-cards"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, staggerChildren: 0.1 }}
+          >
+            <motion.button
               className="contact-card"
               onClick={copyEmail}
               aria-label="Copy email address"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <span className="contact-card-label">EMAIL</span>
               <span className="contact-card-value">{profile.email}</span>
               {copied ? <Check size={19} /> : <Copy size={19} />}
-            </button>
-            <a
+            </motion.button>
+            <motion.a
               className="contact-card"
               href={profile.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Open LinkedIn"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <span className="contact-card-label">LINKEDIN</span>
               <span className="contact-card-value">
                 linkedin.com/in/sutharn555
               </span>
               <ArrowUpRight size={20} />
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               className="contact-card"
               href={profile.github}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Open GitHub"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <span className="contact-card-label">GITHUB</span>
               <span className="contact-card-value">github.com/Nsuthar1464</span>
               <ArrowUpRight size={20} />
-            </a>
-          </div>
+            </motion.a>
+          </motion.div>
           <p className="copy-feedback" role="status">
             {copied
               ? "Email address copied."
