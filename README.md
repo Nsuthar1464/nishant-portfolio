@@ -32,7 +32,7 @@ npm start
 - `app/globals.css`: design tokens, styles and responsive breakpoints.
 - `app/layout.tsx`: page title, description and favicon.
 - `public/images/`: optimized images used by the website; source artwork is retained locally.
-- `public/nishant-suthar-resume.pdf`: a phone-redacted copy of the supplied full portfolio reference, served by the résumé links.
+- `public/nishant-suthar-resume.pdf`: the PDF converted from the latest supplied final résumé, served by the résumé links.
 
 ## Character
 
@@ -80,7 +80,7 @@ Bricolage Grotesque, IBM Plex Sans and IBM Plex Mono are self-hosted; their SIL 
 ## Review before public deployment
 
 - Review your cartoon likeness, project descriptions and contact information.
-- The supplied PDF describes itself as a full portfolio reference, **not a submission-ready résumé**. Replace the public PDF with a shorter résumé when you have one, and update its download filename/label if desired.
+- The résumé download uses the latest supplied final résumé, converted to PDF without content changes.
 - This task runs locally; no public deployment has been created.
 
 The original seated character artwork remains unchanged. Scene interactions rotate the illustrated plane within bounded angles; they do not claim to provide a full 360-degree 3D avatar. The third scene uses a small original Nishant character holding a tablet, in front of a floating blue bars-and-chart panel on the right of the Contact heading.
@@ -91,4 +91,4 @@ Contact uses three outlined rectangular cards: email copy, LinkedIn and GitHub. 
 
 ## Repository privacy
 
-Original supplied documents and photos, preview captures, environment files, dependencies and build output are excluded from Git. The public PDF has its phone number removed. Professional email and social links are intentionally included for portfolio contact.
+Original supplied documents and photos, preview captures, environment files, dependencies and build output are excluded from Git. The public PDF preserves the latest résumé exactly as supplied, including its contact details. Professional email and social links are intentionally included for portfolio contact.
