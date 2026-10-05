@@ -1,0 +1,40 @@
+# Dependencies and generated output
+/node_modules/
+/.next/
+/out/
+/dist/
+/build/
+/coverage/
+/.turbo/
+/.cache/
+/.vercel/
+/.netlify/
+*.tsbuildinfo
+*.log
+
+# Credentials and machine-local state
+.env*
+!.env.example
+/.codex/
+/.agents/
+/.aws/
+/.ssh/
+.DS_Store
+Thumbs.db
+
+# Supplied private reference files and local review captures
+/Nishant-Suthar-resume.pdf
+/Reference profile picture.jpeg
+/links.txt
+/previews/
+/VERIFICATION.md
+
+# Ship only the optimized images used by the finished website
+/public/images/*
+!/public/images/nishant-head.webp
+!/public/images/nishant-workspace.webp
+!/public/images/nishant-tablet-character.webp
+!/public/images/password.webp
+!/public/images/sentinel.webp
+!/public/images/devsecops.webp
+!/public/images/iam.webp

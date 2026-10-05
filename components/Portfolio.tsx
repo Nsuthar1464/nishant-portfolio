@@ -1,0 +1,759 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import {
+  AnimatePresence,
+  motion,
+  MotionConfig,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+} from "motion/react";
+import {
+  Github,
+  Linkedin,
+  Mail,
+  Copy,
+  Check,
+  FileText,
+  X,
+  MessageSquare,
+  ArrowUpRight,
+  GraduationCap,
+  ShieldCheck,
+  RotateCcw,
+} from "lucide-react";
+import Character from "./Character";
+import TechGraph from "./TechGraph";
+import AskPortfolio from "./AskPortfolio";
+import IdentityDemo from "./IdentityDemo";
+import CharacterScene from "./CharacterScene";
+import { experience, profile, projects, type Project } from "@/data/portfolio";
+
+const navigation = [
+  { id: "stack", label: "TECH" },
+  { id: "build", label: "WORK" },
+  { id: "about", label: "ABOUT" },
+  { id: "contact", label: "CONTACT" },
+];
+const sections = [
+  { id: "home", label: "HOME" },
+  { id: "stack", label: "TECH" },
+  { id: "build", label: "WORK" },
+  { id: "numbers", label: "NUMBERS" },
+  { id: "ask", label: "ASK" },
+  { id: "about", label: "ABOUT" },
+  { id: "contact", label: "CONTACT" },
+];
+const phrases = [
+  "privacy-first tools",
+  "cloud detections",
+  "identity lifecycles",
+  "secure pipelines",
+];
+const highlights: Record<string, string[]> = {
+  password: [
+    "3 integrated password tools",
+    "5-character hash prefix",
+    "Fully client-side",
+  ],
+  sentinel: [
+    "Entra ID log ingestion",
+    "Scheduled KQL detection",
+    "Account entity mapping",
+  ],
+  devsecops: [
+    "tfsec + Checkov scanning",
+    "Critical / high remediation",
+    "Risk-based security gates",
+  ],
+  iam: [
+    "Joiner–Mover–Leaver lifecycle",
+    "Role-based least privilege",
+    "Audited incident response",
+  ],
+};
+
+function ProjectDetail({
+  project,
+  close,
+}: {
+  project: Project;
+  close: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    dialog.current?.showModal();
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+      opener?.focus({ preventScroll: true });
+    };
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className="project-dialog"
+      aria-labelledby="project-title"
+      onCancel={(event) => {
+        event.preventDefault();
+        close();
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) close();
+      }}
+    >
+      <button
+        className="dialog-close"
+        aria-label="Close project details"
+        onClick={close}
+        autoFocus
+      >
+        <X size={22} />
+      </button>
+      <div className="dialog-content">
+        <p className="section-kicker">
+          PROJECT {project.number} · {project.category}
+        </p>
+        <h2 id="project-title">{project.title}</h2>
+        <p className="dialog-headline">{project.headline}</p>
+        {project.image && (
+          <Image
+            className="dialog-image"
+            src={project.image}
+            alt={project.imageAlt!}
+            width={1400}
+            height={900}
+            sizes="(max-width:700px) 90vw, 780px"
+          />
+        )}
+        <div className="tags">
+          {project.tags.map((t) => (
+            <span key={t}>{t}</span>
+          ))}
+        </div>
+        <h3>What I built</h3>
+        <ul>
+          {project.details.map((d) => (
+            <li key={d}>{d}</li>
+          ))}
+        </ul>
+        <h3>The result</h3>
+        <p>{project.outcome}</p>
+        <div className="dialog-links">
+          {project.repo && (
+            <a href={project.repo} target="_blank" rel="noopener noreferrer">
+              <Github size={17} />
+              Explore repository
+            </a>
+          )}
+          {project.live && (
+            <a href={project.live} target="_blank" rel="noopener noreferrer">
+              <ArrowUpRight size={17} />
+              Try the live tool
+            </a>
+          )}
+        </div>
+      </div>
+    </dialog>
+  );
+}
+
+function FlipCard({
+  project,
+  onOpen,
+  onTechnology,
+}: {
+  project: Project;
+  onOpen: () => void;
+  onTechnology: (t: string) => void;
+}) {
+  const [flipped, setFlipped] = useState(false);
+  const [settling, setSettling] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const frontButton = useRef<HTMLButtonElement>(null);
+  const backButton = useRef<HTMLButtonElement>(null);
+  const previousFlip = useRef(false);
+  useEffect(() => {
+    if (previousFlip.current === flipped) return;
+    previousFlip.current = flipped;
+    (flipped ? backButton : frontButton).current?.focus({
+      preventScroll: true,
+    });
+  }, [flipped]);
+  useEffect(() => {
+    const timer = setTimeout(() => setSettling(false), reducedMotion ? 0 : 720);
+    return () => clearTimeout(timer);
+  }, [flipped, reducedMotion]);
+  return (
+    <article
+      className={`flip-card ${flipped ? "flipped" : ""}`}
+      id={`project-${project.id}`}
+    >
+      <div className="flip-inner">
+        <div
+          className="card-face card-front"
+          aria-hidden={flipped}
+          inert={flipped}
+        >
+          <p className="card-category">{project.category}</p>
+          <h3>{project.title}</h3>
+          <p className="card-subtitle">
+            {project.id === "password"
+              ? "Web application · Live on GitHub Pages"
+              : "Independent project · Simulated lab"}
+          </p>
+          <p className="card-description">{project.description}</p>
+          <span className="flip-hint">TAP TO SEE THE DETAILS ↻</span>
+          <button
+            ref={frontButton}
+            className="card-flip-target"
+            onClick={() => {
+              setSettling(true);
+              setFlipped(true);
+            }}
+            aria-label={`Flip ${project.title} to see details`}
+          />
+        </div>
+        <div
+          className="card-face card-back"
+          aria-hidden={!flipped}
+          inert={!flipped}
+        >
+          <button
+            ref={backButton}
+            className="unflip-button"
+            onClick={() => setFlipped(false)}
+            aria-label={`Show front of ${project.title}`}
+          >
+            <RotateCcw size={15} />
+          </button>
+          <h3>{project.title}</h3>
+          <ul>
+            {highlights[project.id].map((h) => (
+              <li key={h}>{h}</li>
+            ))}
+          </ul>
+          <div className="card-technologies">
+            {project.tags.map((t) => (
+              <button key={t} onClick={() => onTechnology(t)}>
+                {t}
+              </button>
+            ))}
+          </div>
+          <button
+            className="case-study-button"
+            onClick={onOpen}
+            disabled={settling}
+          >
+            VIEW CASE STUDY <ArrowUpRight size={14} />
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function AnimatedValue({ value }: { value: string }) {
+  return (
+    <motion.strong
+      initial={{ opacity: 0.3, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+    >
+      {value}
+    </motion.strong>
+  );
+}
+
+export default function Portfolio() {
+  const [active, setActive] = useState("home");
+  const [phrase, setPhrase] = useState(0);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedTech, setSelectedTech] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(e.target.id);
+        });
+      },
+      { rootMargin: "-20% 0px -45% 0px" },
+    );
+    document
+      .querySelectorAll("main > section[id]")
+      .forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    if (reduced) return;
+    const interval = setInterval(
+      () => setPhrase((p) => (p + 1) % phrases.length),
+      3300,
+    );
+    return () => clearInterval(interval);
+  }, [reduced]);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(profile.email);
+      setCopied(true);
+      setCopyError(false);
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCopied(false), 2400);
+    } catch {
+      setCopyError(true);
+    }
+  };
+  const selectTechnology = (t: string) => {
+    setSelectedTech(t);
+    document
+      .getElementById("stack")
+      ?.scrollIntoView({ behavior: reduced ? "instant" : "smooth" });
+  };
+  const openProject = (id: string) => {
+    const p = projects.find((p) => p.id === id);
+    if (p) setSelectedProject(p);
+  };
+
+  return (
+    <MotionConfig reducedMotion="user">
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+      <div className="star-field" aria-hidden="true">
+        {Array.from({ length: 100 }, (_, i) => (
+          <i
+            key={i}
+            style={{
+              left: `${(i * 37.731 + 7) % 100}%`,
+              top: `${(i * 61.271 + 3) % 100}%`,
+              width: 1 + (i % 3),
+              height: 1 + (i % 3),
+              opacity: 0.06 + (i % 6) * 0.035,
+              animationDelay: `${i % 9}s`,
+            }}
+          />
+        ))}
+      </div>
+      <motion.div className="scroll-progress" style={{ scaleX }} />
+      <header className="site-header">
+        <a className="brand" href="#home" aria-label="Nishant Suthar home">
+          NS
+        </a>
+        <nav aria-label="Main navigation">
+          {navigation.map((n) => (
+            <a
+              key={n.id}
+              href={`#${n.id}`}
+              className={active === n.id ? "active" : ""}
+              aria-current={active === n.id ? "location" : undefined}
+            >
+              {n.label}
+            </a>
+          ))}
+        </nav>
+      </header>
+      <aside className="social-rail" aria-label="Social links">
+        <a
+          href={profile.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub"
+        >
+          <Github size={19} />
+        </a>
+        <a
+          href={profile.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn"
+        >
+          <Linkedin size={18} />
+        </a>
+        <a href={`mailto:${profile.email}`} aria-label="Email Nishant">
+          <Mail size={18} />
+        </a>
+        <span />
+      </aside>
+      <a
+        className="floating-resume"
+        href={profile.resume}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        RÉSUMÉ <FileText size={13} />
+      </a>
+      <nav className="section-rail" aria-label="On this page">
+        {sections.map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className={active === s.id ? "active" : ""}
+            aria-label={s.label}
+            aria-current={active === s.id ? "location" : undefined}
+          >
+            <span>{s.label}</span>
+            <i />
+          </a>
+        ))}
+      </nav>
+      <a className="floating-chat" href="#ask" aria-label="Ask me anything">
+        <MessageSquare size={24} />
+      </a>
+      <main id="main">
+        <section className="hero" id="home" aria-label="Home">
+          <div className="hero-name">
+            <p>Hello! I’m</p>
+            <h1>
+              Nishant
+              <br />
+              Suthar
+            </h1>
+          </div>
+          <Character />
+          <div className="hero-build">
+            <p>I build</p>
+            <div className="phrase-wrap">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  className="gradient-text"
+                  key={phrase}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: reduced ? 0 : 0.35 }}
+                >
+                  {phrases[phrase]}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+          </div>
+          <a className="hero-scroll" href="#stack">
+            scroll ↓<span />
+          </a>
+        </section>
+        <section
+          className="stack-section content-section"
+          id="stack"
+          aria-label="Tech stack"
+        >
+          <h2 className="gradient-text">Tech Stack</h2>
+          <p className="section-kicker">
+            A LIVING NETWORK · DRAG TO ROTATE · SCROLL TO ZOOM · HOVER TO TRACE
+            LINKS
+          </p>
+          <TechGraph selected={selectedTech} onSelect={setSelectedTech} />
+        </section>
+        <section
+          className="work-section content-section"
+          id="build"
+          aria-label="What I build"
+        >
+          <p className="section-kicker work-kicker">
+            <span /> WHAT I BUILD · TAP A CARD TO FLIP · TAP A CHIP TO FIND IT
+            IN THE STACK
+          </p>
+          <div className="work-layout">
+            <div className="work-column">
+              {projects.slice(0, 2).map((p) => (
+                <FlipCard
+                  key={p.id}
+                  project={p}
+                  onOpen={() => setSelectedProject(p)}
+                  onTechnology={selectTechnology}
+                />
+              ))}
+            </div>
+            <div className="workspace-scene">
+              <CharacterScene />
+              <h2>Selected Projects</h2>
+            </div>
+            <div className="work-column">
+              {projects.slice(2, 4).map((p) => (
+                <FlipCard
+                  key={p.id}
+                  project={p}
+                  onOpen={() => setSelectedProject(p)}
+                  onTechnology={selectTechnology}
+                />
+              ))}
+            </div>
+          </div>
+          <a
+            className="github-note"
+            href={profile.github}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Github size={16} /> Explore the code and documentation{" "}
+            <ArrowUpRight size={15} />
+          </a>
+        </section>
+        <section
+          className="numbers-section content-section"
+          id="numbers"
+          aria-label="By the numbers"
+        >
+          <p className="section-kicker">BY THE NUMBERS</p>
+          <div className="numbers-grid">
+            <div>
+              <AnimatedValue value="4" />
+              <span>projects built & documented</span>
+            </div>
+            <div>
+              <AnimatedValue value="3.8" />
+              <span>GPA · College of DuPage</span>
+            </div>
+            <div>
+              <AnimatedValue value="2" />
+              <span>certificates · High Honors</span>
+            </div>
+            <div>
+              <AnimatedValue value="3" />
+              <span>tools in one password app</span>
+            </div>
+          </div>
+        </section>
+        <AskPortfolio onProject={openProject} />
+        <section
+          className="about-section content-section"
+          id="about"
+          aria-label="About me"
+        >
+          <div className="about-layout">
+            <IdentityDemo />
+            <div className="about-copy">
+              <p className="section-kicker">ABOUT ME</p>
+              <h2>
+                Cybersecurity student.
+                <br />
+                Builder with a{" "}
+                <span className="gradient-text">security-first mindset.</span>
+              </h2>
+              <p>
+                I build hands-on projects in cloud security, detection
+                engineering, identity and access management, and web
+                development. I’m a B.S. Cybersecurity student at DePaul
+                University, following an A.A.S. in Cybersecurity & Defense at
+                College of DuPage with a 3.8 GPA.
+              </p>
+              <p>
+                I learn by building complete things, understanding the code and
+                the security decisions, and documenting what worked. My
+                experience supporting customers and troubleshooting devices at
+                Amazon taught me to troubleshoot clearly, communicate with
+                people, and take ownership.
+              </p>
+              <div className="about-tags">
+                <span>DePaul · Cybersecurity</span>
+                <span>College of DuPage · GPA 3.8</span>
+                <span>Chicago area / Illinois</span>
+              </div>
+              <ul className="principles">
+                <li>
+                  <strong>Security first.</strong> Think about access, privacy
+                  and failure before adding features.
+                </li>
+                <li>
+                  <strong>Understand the why.</strong> Learn what the code and
+                  the logs are actually telling you.
+                </li>
+                <li>
+                  <strong>Build to learn.</strong> Finish the project, debug it,
+                  and document the decisions.
+                </li>
+              </ul>
+              <p className="code-note">
+                // cloud · code · identity — all connected
+              </p>
+            </div>
+          </div>
+          <div className="background-grid">
+            <div className="education">
+              <p className="section-kicker">
+                <GraduationCap size={17} /> EDUCATION
+              </p>
+              <article>
+                <span className="small-label">2026 — PRESENT</span>
+                <h3>DePaul University</h3>
+                <p>B.S. in Cybersecurity</p>
+                <p className="muted">
+                  Jarvis College of Computing and Digital Media
+                  <br />
+                  Chicago, Illinois · Current student
+                </p>
+              </article>
+              <article>
+                <span className="small-label">COMPLETED</span>
+                <h3>College of DuPage</h3>
+                <p>A.A.S. in Cybersecurity & Defense</p>
+                <p className="muted">Glen Ellyn, Illinois</p>
+                <div className="tags">
+                  <span>3.8 GPA</span>
+                  <span>Academic Honors</span>
+                  <span>Phi Theta Kappa</span>
+                </div>
+              </article>
+            </div>
+            <div className="certificates">
+              <p className="section-kicker">
+                <ShieldCheck size={17} /> CERTIFICATES & LEARNING
+              </p>
+              <div>
+                <Check size={17} />
+                <p>
+                  Cybersecurity Specialist Certificate
+                  <small>College of DuPage · High Honors</small>
+                </p>
+              </div>
+              <div>
+                <Check size={17} />
+                <p>
+                  CIT CCNA Certificate
+                  <small>College of DuPage · High Honors</small>
+                </p>
+              </div>
+              <p className="small-label">CURRENTLY STUDYING · IN PROGRESS</p>
+              <div className="learning-tags">
+                <span>CompTIA Security+ (SY0-701)</span>
+                <span>AWS Cloud Practitioner</span>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="experience-section content-section" id="experience">
+          <p className="section-kicker">WORK EXPERIENCE</p>
+          <h2 className="gradient-text">Beyond the projects.</h2>
+          <div className="experience-list">
+            {experience.map((e, i) => (
+              <details key={e.company} open={i === 0}>
+                <summary>
+                  <div>
+                    <h3>{e.role}</h3>
+                    <p>{e.company}</p>
+                  </div>
+                  <span>{e.date}</span>
+                  <span className="expand-sign">+</span>
+                </summary>
+                <div className="experience-body">
+                  <p className="small-label">{e.location}</p>
+                  <ul>
+                    {e.points.map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                </div>
+              </details>
+            ))}
+          </div>
+          <a
+            className="resume-download"
+            href={profile.resume}
+            download="Nishant-Suthar-Portfolio-Reference.pdf"
+          >
+            <FileText size={17} /> Download résumé reference{" "}
+            <ArrowUpRight size={16} />
+          </a>
+        </section>
+        <section
+          className="contact-section content-section"
+          id="contact"
+          aria-label="Contact"
+        >
+          <div className="contact-hero">
+            <div className="contact-copy">
+              <p className="section-kicker">CONTACT</p>
+              <h2>
+                Let’s build something
+                <br />
+                <span className="gradient-text">with security in mind.</span>
+              </h2>
+              <a className="say-hello" href={`mailto:${profile.email}`}>
+                Say hello <ArrowUpRight size={19} />
+              </a>
+            </div>
+            <div className="contact-character">
+              <CharacterScene variant="security" />
+            </div>
+          </div>
+          <div className="contact-cards">
+            <button
+              className="contact-card"
+              onClick={copyEmail}
+              aria-label="Copy email address"
+            >
+              <span className="contact-card-label">EMAIL</span>
+              <span className="contact-card-value">{profile.email}</span>
+              {copied ? <Check size={19} /> : <Copy size={19} />}
+            </button>
+            <a
+              className="contact-card"
+              href={profile.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open LinkedIn"
+            >
+              <span className="contact-card-label">LINKEDIN</span>
+              <span className="contact-card-value">
+                linkedin.com/in/sutharn555
+              </span>
+              <ArrowUpRight size={20} />
+            </a>
+            <a
+              className="contact-card"
+              href={profile.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open GitHub"
+            >
+              <span className="contact-card-label">GITHUB</span>
+              <span className="contact-card-value">github.com/Nsuthar1464</span>
+              <ArrowUpRight size={20} />
+            </a>
+          </div>
+          <p className="copy-feedback" role="status">
+            {copied
+              ? "Email address copied."
+              : copyError
+                ? "You can reach me at the email address above."
+                : ""}
+          </p>
+          <footer>
+            <span>
+              © {new Date().getFullYear()} Nishant Suthar — Chicago area /
+              Illinois
+            </span>
+            <a href="#home">Back to top ↑</a>
+          </footer>
+        </section>
+      </main>
+      {selectedProject && (
+        <ProjectDetail
+          key={selectedProject.id}
+          project={selectedProject}
+          close={() =>
+            setSelectedProject((current) =>
+              current?.id === selectedProject.id ? null : current,
+            )
+          }
+        />
+      )}
+    </MotionConfig>
+  );
+}
