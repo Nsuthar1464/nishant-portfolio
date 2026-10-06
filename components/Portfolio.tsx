@@ -25,6 +25,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import Character from "./Character";
+import IntroSequence from "./IntroSequence";
 import TechGraph from "./TechGraph";
 import AskPortfolio from "./AskPortfolio";
 import IdentityDemo from "./IdentityDemo";
@@ -333,6 +334,7 @@ export default function Portfolio() {
 
   return (
     <MotionConfig reducedMotion="user" transition={{ type: "spring", bounce: 0.2 }}>
+      <IntroSequence />
       <a className="skip-link" href="#main">
         Skip to content
       </a>

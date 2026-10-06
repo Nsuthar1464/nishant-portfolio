@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useAnimationActivity } from "./useAnimationActivity";
 import { useReducedMotion } from "motion/react";
 
 const technologies = [
@@ -52,7 +53,15 @@ export default function TechGraph({
   onSelect: (value: string | null) => void;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const active = useAnimationActivity(canvas);
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const redraw = useRef<() => void>(() => {});
+  useEffect(() => redraw.current(), [active]);
   const selectedRef = useRef(selected);
+  const onSelectRef = useRef(onSelect);
+  onSelectRef.current = onSelect;
+  useEffect(() => redraw.current(), [selected]);
   const reduced = useReducedMotion();
   const [hovered, setHovered] = useState<string | null>(null);
   selectedRef.current = selected;
@@ -158,7 +167,7 @@ export default function TechGraph({
           ctx.globalAlpha = dim ? 0.16 : 0.35 + (p.z + 1) * 0.31;
           ctx.fillStyle = hot ? "#fff" : colors[n.group];
           ctx.shadowColor = colors[n.group];
-          ctx.shadowBlur = hot ? 20 : p.z > 0 ? 8 : 0;
+          ctx.shadowBlur = hot ? 8 : 0;
           ctx.beginPath();
           ctx.arc(p.x, p.y, hot ? 5 : 2 * p.scale, 0, Math.PI * 2);
           ctx.fill();
@@ -179,22 +188,31 @@ export default function TechGraph({
       const rect = el.getBoundingClientRect();
       width = rect.width;
       height = rect.height;
-      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const dpr = Math.min(devicePixelRatio || 1, 1.5);
       el.width = width * dpr;
       el.height = height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       draw();
     };
-    const tick = (now: number) => {
-      if (visible) {
-        if (!reduced && !dragging && hoverIndex < 0) {
-          angle += Math.min(now - last || 16, 50) * 0.000065;
-        }
-        draw();
-      }
-      last = now;
-      frame = requestAnimationFrame(tick);
+    let dirty = true;
+    const invalidate = () => {
+      dirty = true;
+      if (!frame) frame = requestAnimationFrame(tick);
     };
+    const tick = (now: number) => {
+      frame = 0;
+      const rotating = activeRef.current && !reduced && visible && !dragging && hoverIndex < 0;
+      if (rotating && now - last < 1000 / 30) {
+        frame = requestAnimationFrame(tick);
+        return;
+      }
+      if (rotating) angle += Math.min(now - last || 33, 50) * 0.000065;
+      if (visible && !document.hidden && (dirty || rotating)) draw();
+      dirty = false;
+      last = now;
+      if (rotating) frame = requestAnimationFrame(tick);
+    };
+    redraw.current = invalidate;
     const hover = (e: PointerEvent) => {
       const r = el.getBoundingClientRect();
       const px = e.clientX - r.left,
@@ -206,7 +224,7 @@ export default function TechGraph({
         tilt = Math.max(-1, Math.min(1, tilt + dy * 0.006));
         if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
         pointer = { x: e.clientX, y: e.clientY };
-        draw();
+        invalidate();
         return;
       }
       let distance = 23,
@@ -218,10 +236,11 @@ export default function TechGraph({
           index = i;
         }
       });
+      if (index === hoverIndex) return;
       hoverIndex = index;
       el.style.cursor = index >= 0 ? "pointer" : "grab";
       setHovered(index >= 0 ? nodes[index].label : null);
-      if (reduced) draw();
+      invalidate();
     };
     const down = (e: PointerEvent) => {
       if (e.pointerType === "touch") return;
@@ -233,24 +252,25 @@ export default function TechGraph({
       el.style.cursor = "grabbing";
     };
     const up = () => {
-      if (!moved && hoverIndex >= 0) onSelect(nodes[hoverIndex].label);
+      if (!moved && hoverIndex >= 0) onSelectRef.current(nodes[hoverIndex].label);
       dragging = false;
       pointer = null;
       if (pointerId !== null && el.hasPointerCapture(pointerId))
         el.releasePointerCapture(pointerId);
       pointerId = null;
+      invalidate();
     };
     const leave = () => {
       if (!dragging) {
         hoverIndex = -1;
         setHovered(null);
-        if (reduced) draw();
+        invalidate();
       }
     };
     const wheel = (e: WheelEvent) => {
       e.preventDefault();
       zoom = Math.min(1.38, Math.max(0.65, zoom - e.deltaY * 0.0008));
-      draw();
+      invalidate();
     };
     const key = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") angle -= 0.12;
@@ -262,12 +282,14 @@ export default function TechGraph({
       else if (e.key === "-") zoom = Math.max(0.65, zoom - 0.08);
       else return;
       e.preventDefault();
-      draw();
+      invalidate();
     };
     const observer = new ResizeObserver(resize);
     observer.observe(el);
     const intersection = new IntersectionObserver((entries) => {
       visible = entries[0].isIntersecting;
+      if (visible) invalidate();
+      else { cancelAnimationFrame(frame); frame = 0; }
     });
     intersection.observe(el);
     el.addEventListener("pointermove", hover);
@@ -278,8 +300,9 @@ export default function TechGraph({
     el.addEventListener("wheel", wheel, { passive: false });
     el.addEventListener("keydown", key);
     resize();
-    frame = requestAnimationFrame(tick);
+    invalidate();
     return () => {
+      redraw.current = () => {};
       cancelAnimationFrame(frame);
       observer.disconnect();
       intersection.disconnect();
@@ -291,7 +314,7 @@ export default function TechGraph({
       el.removeEventListener("wheel", wheel);
       el.removeEventListener("keydown", key);
     };
-  }, [reduced, onSelect]);
+  }, [reduced]);
 
   return (
     <div className="tech-network">

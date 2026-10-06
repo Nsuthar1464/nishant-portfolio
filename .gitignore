@@ -16,6 +16,7 @@
 .env*
 !.env.example
 /.codex/
+/.claude/
 /.agents/
 /.aws/
 /.ssh/
@@ -29,6 +30,9 @@ Thumbs.db
 /links.txt
 /previews/
 /VERIFICATION.md
+/hero-direction-*.jpg
+/hero-original-restored-review.jpg
+/hero-sprite-ghosting-evidence.jpg
 
 # Ship only the optimized images used by the finished website
 /public/images/*
@@ -39,3 +43,13 @@ Thumbs.db
 !/public/images/sentinel.webp
 !/public/images/devsecops.webp
 !/public/images/iam.webp
+
+# Reviewed hero attention layers, when supplied
+!/public/images/nishant-head-base.png
+!/public/images/nishant-left-pupil.png
+!/public/images/nishant-right-pupil.png
+!/public/images/nishant-eye-mask.png
+
+!/public/images/hero-directions/
+/public/images/hero-directions/*
+!/public/images/hero-directions/*.webp

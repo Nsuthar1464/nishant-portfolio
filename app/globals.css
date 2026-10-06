@@ -2766,3 +2766,176 @@ html {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---- Startup / intro sequence ---------------------------------------- */
+/* Covers the hero from first paint, forms a constellation network, then
+   fades out. Resting styles below ARE the finished state, so when
+   prefers-reduced-motion disables every animation the network simply shows
+   formed and the component unmounts quickly (no motion). */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 22% 16%, #76569926, transparent 46%),
+    radial-gradient(ellipse at 84% 82%, #a45d8320, transparent 46%);
+  /* JS-independent fade: fires even if hydration stalls. */
+  animation: intro-out 0.55s ease 3s forwards;
+}
+.intro-overlay--exit {
+  pointer-events: none;
+}
+.intro-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(540px, 82vw);
+}
+.intro-net {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.intro-edge {
+  stroke: #c7afe961;
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: intro-line 0.7s ease-out both;
+}
+.intro-edge--spoke {
+  stroke: #c7afe94d;
+}
+.intro-node {
+  fill: #f3eefa;
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: drop-shadow(0 0 3px #c2a7edc0);
+  animation: intro-node 0.6s ease-out both;
+}
+.intro-node--core {
+  filter: drop-shadow(0 0 7px #d7c2f5);
+}
+.intro-halo {
+  fill: #c2a7ed2e;
+  opacity: 0.3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: intro-halo 1s ease-out 0.1s both;
+}
+.intro-status {
+  position: relative;
+  text-align: center;
+  margin-top: 32px;
+  height: 16px;
+  width: 100%;
+}
+.intro-status__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-transform: lowercase;
+  color: var(--dim);
+  opacity: 0;
+  animation: intro-text-cycle 0.95s ease both;
+}
+.intro-status__line--final {
+  color: var(--muted);
+  opacity: 0.85;
+  animation: intro-text-in 0.5s ease-out 2.55s both;
+}
+.intro-progress {
+  position: relative;
+  width: min(320px, 62vw);
+  height: 2px;
+  margin-top: 22px;
+  background: #c7afe824;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.intro-progress__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  transform-origin: left center;
+  transform: scaleX(1);
+  background: linear-gradient(90deg, var(--pink), var(--purple));
+  animation: intro-fill 2.9s cubic-bezier(0.4, 0.1, 0.2, 1) both;
+}
+@keyframes intro-node {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes intro-line {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes intro-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes intro-halo {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+}
+@keyframes intro-text-cycle {
+  0% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  15% {
+    opacity: 0.8;
+    transform: translateY(0);
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes intro-text-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 0.85;
+    transform: translateY(0);
+  }
+}
+@keyframes intro-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
